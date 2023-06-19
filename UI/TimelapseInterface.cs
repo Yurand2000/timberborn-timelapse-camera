@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Timberborn.EntityPanelSystem;
-using Timberborn.CoreUI;
-using UnityEngine;
-using UnityEngine.UIElements;
 using TimberApi.UiBuilderSystem;
-using Timberborn.BaseComponentSystem;
-using Timberborn.Localization;
 using Timberborn.SingletonSystem;
 using Timberborn.UILayoutSystem;
+using UnityEngine.UIElements;
 using static UnityEngine.UIElements.LengthUnit;
-using TimberApi.DependencyContainerSystem;
-using TimberApi.ConsoleSystem;
 
 namespace Yurand.Timberborn.TimelapseCamera.UI
 {
@@ -24,8 +13,6 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
         private readonly UIBuilder uiBuilder;
 
         private VisualElement uiRoot;
-        public Button uiScreenshotButton;
-        public Button uiSetCameraButton;
 
         private const int _panelOrder = 8;
 
@@ -95,9 +82,9 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
 
             uiRoot = panelBuilder.BuildAndInitialize();
 
-            uiRoot.Q<Button>("SettingsButton").clicked += TimelapsePanel.OpenOptionsDelegate;
-            uiRoot.Q<Button>("ScreenshotButton").clicked += () => { ScreenshotService.TakeScreenshotDelegate("manual_capture.png"); };
-            uiRoot.Q<Button>("SetCameraButton").clicked += ScreenshotService.SetCameraDelegate;
+            uiRoot.Q<Button>("SettingsButton").clicked += () => { TimelapsePanel.OpenOptionsDelegate(); };
+            uiRoot.Q<Button>("ScreenshotButton").clicked += () => { TimelapseManager.TakeManualScreenshotDelegate(); };
+            uiRoot.Q<Button>("SetCameraButton").clicked += () => { ScreenshotService.SetCameraDelegate(); };
 
             uiLayout.AddTopRight(uiRoot, _panelOrder);
         }

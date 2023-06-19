@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using TimberApi.ConsoleSystem;
 using TimberApi.DependencyContainerSystem;
 using Timberborn.Core;
@@ -8,24 +6,38 @@ using Timberborn.ToolSystem;
 using Timberborn.SingletonSystem;
 using Timberborn.WaterSystemRendering;
 using Timberborn.LevelVisibilitySystem;
-using UnityEngine;
-using UnityEngine.UIElements;
-using Yurand.Timberborn.TimelapseCamera.UI;
 using Timberborn.Persistence;
+using UnityEngine;
 
 namespace Yurand.Timberborn.TimelapseCamera
 {
     public class ScreenshotService : IPostLoadableSingleton, ISaveableSingleton
     {
-        public static System.Action<string> TakeScreenshotDelegate;
+        public static System.Action<string, string> TakeScreenshotDelegate;
         public static System.Action SetCameraDelegate;
         private GameObject screenshotCameraObject;
         private Camera screenshotCamera;
         private IConsoleWriter console;
+        private WaterOpacityService waterOpacityService;
+        private ToolGroupManager toolGroupManager;
+        private ToolManager toolManager;
+        private ILevelVisibilityService levelVisibilityService;
+        private ScreenshotSunService screenshotSunService;
 
-        public ScreenshotService(IConsoleWriter console)
-        {
+        public ScreenshotService(
+            IConsoleWriter console,
+            WaterOpacityService waterOpacityService,
+            ToolGroupManager toolGroupManager,
+            ToolManager toolManager,
+            ILevelVisibilityService levelVisibilityService,
+            ScreenshotSunService screenshotSunService
+        ) {
             this.console = console;
+            this.waterOpacityService = waterOpacityService;
+            this.toolManager = toolManager;
+            this.toolGroupManager = toolGroupManager;
+            this.levelVisibilityService = levelVisibilityService;
+            this.screenshotSunService = screenshotSunService;
 
             if (PluginEntryPoint.debugLogging) {
                 console.LogInfo("Screenshot Service Initialized Successfully");
@@ -79,12 +91,9 @@ namespace Yurand.Timberborn.TimelapseCamera
                 }
             }
 
-            //create screenshot builder component
-            var screenshotBuilder = screenshotCameraObject.AddComponent<ScreenshotBuilder>();
-            screenshotBuilder.ScreenshotBuilderConstructor(screenshotCamera, console);
-
-            SetCameraDelegate = screenshotBuilder.SetScreenshotCamera;
-            TakeScreenshotDelegate = screenshotBuilder.TakeScreenshot;
+            //setup service delegates
+            TakeScreenshotDelegate = TakeScreenshot;
+            SetCameraDelegate = SetScreenshotCamera;
 
             if (PluginEntryPoint.debugLogging) {
                 console.LogInfo("Screenshot Service Loaded Successfully");
@@ -103,31 +112,7 @@ namespace Yurand.Timberborn.TimelapseCamera
             }
         }
 
-        private static readonly SingletonKey singletonKey = new SingletonKey(nameof(ScreenshotService));
-        private static readonly PropertyKey<Quaternion> CameraRotationKey = new PropertyKey<Quaternion>("CameraRotation");
-        private static readonly PropertyKey<Vector3> CameraPositionKey = new PropertyKey<Vector3>("CameraPosition");
-        private static readonly PropertyKey<float> CameraFovKey = new PropertyKey<float>("CameraFOV");
-    }
-
-    public class ScreenshotBuilder : MonoBehaviour
-    {
-        private WaterOpacityService waterOpacityService;
-        private ToolGroupManager toolGroupManager;
-        private ILevelVisibilityService levelVisibilityService;
-        private IConsoleWriter console;
-        private Camera screenshotCamera;
-
-        public void ScreenshotBuilderConstructor (Camera camera, IConsoleWriter console)
-        {
-            this.console = console;
-            this.screenshotCamera = camera;
-
-            toolGroupManager = DependencyContainer.GetInstance<ToolGroupManager>() ?? throw new ArgumentNullException(nameof(ToolGroupManager));;
-            waterOpacityService = DependencyContainer.GetInstance<WaterOpacityService>() ?? throw new ArgumentNullException(nameof(WaterOpacityService));;
-            levelVisibilityService = DependencyContainer.GetInstance<ILevelVisibilityService>() ?? throw new ArgumentNullException(nameof(ILevelVisibilityService));;
-        }
-
-        public void SetScreenshotCamera() {
+        private void SetScreenshotCamera() {
             var local_camera = Camera.main;
             if (local_camera != null) {
                 screenshotCamera.transform.position = local_camera.transform.position;
@@ -141,25 +126,27 @@ namespace Yurand.Timberborn.TimelapseCamera
             }
         }
 
-        public void TakeScreenshot(string output_file) {
+        private void TakeScreenshot(string output_folder, string output_file) {
             if (screenshotCamera != null) {
-                SaveCameraView(PluginEntryPoint.directory, output_file);
+                SaveCameraView(PluginEntryPoint.directory + "/" + output_folder, output_file);
             } else {
                 console.LogError("Screenshot Camera Not Available");
             }
         }
-
         private void SaveCameraView(string output_folder, string output_file)
         {
             RenderTexture screenTexture = new RenderTexture(Screen.width, Screen.height, 16);
 
             //setup scene
+            var activeTool = toolManager.ActiveTool;
             var activeToolGroup = toolGroupManager.ActiveToolGroup;
             var waterHidden = waterOpacityService.IsWaterHidden;
             var maxVisibileLevel = levelVisibilityService.MaxVisibleLevel;
             var isMaxVisible = levelVisibilityService.LevelIsAtMax;
             var isFogVisible = RenderSettings.fog;
 
+            screenshotSunService.setSunForScreenshotRendering(screenshotCamera);
+            if (activeTool is not null) toolManager.SwitchToDefaultTool();
             if (activeToolGroup is not null) toolGroupManager.CloseToolGroup();
             if (waterHidden) waterOpacityService.ToggleOpacityOverride();
             if (isMaxVisible) levelVisibilityService.ResetMaxVisibleLevel();
@@ -177,6 +164,8 @@ namespace Yurand.Timberborn.TimelapseCamera
             if (isMaxVisible) levelVisibilityService.SetMaxVisibleLevel(maxVisibileLevel);
             if (waterHidden) waterOpacityService.ToggleOpacityOverride();
             if (activeToolGroup is not null) toolGroupManager.SwitchToolGroup(activeToolGroup);
+            if (activeTool is not null) toolManager.SwitchTool(activeTool);
+            screenshotSunService.resetSunForScreenshotRendering();
 
             //read rendered image
             Texture2D renderedTexture = new Texture2D(Screen.width, Screen.height);
@@ -187,15 +176,24 @@ namespace Yurand.Timberborn.TimelapseCamera
             byte[] byteArray = renderedTexture.EncodeToPNG();
 
             //destroy temporary data.
-            Destroy(renderedTexture);
+            UnityEngine.Object.Destroy(renderedTexture);
             screenTexture.Release();
 
             //save on file
-            if (output_folder == null) {
-                DependencyContainer.GetInstance<IConsoleWriter>().LogError("unknown path");
-            } else {
-                System.IO.File.WriteAllBytesAsync(output_folder + "/" + output_file, byteArray);
+            try {
+                System.IO.Directory.CreateDirectory(output_folder);
+                System.IO.File.WriteAllBytes(output_folder + "/" + output_file, byteArray);
+
+                if (PluginEntryPoint.debugLogging)
+                    console.LogInfo("Successfully Saved Screenshot");
+            } catch (Exception e) {
+                console.LogError("Exceprion on saving screenshot: " + e.Message);
             }
         }
+
+        private static readonly SingletonKey singletonKey = new SingletonKey(nameof(ScreenshotService));
+        private static readonly PropertyKey<Quaternion> CameraRotationKey = new PropertyKey<Quaternion>("CameraRotation");
+        private static readonly PropertyKey<Vector3> CameraPositionKey = new PropertyKey<Vector3>("CameraPosition");
+        private static readonly PropertyKey<float> CameraFovKey = new PropertyKey<float>("CameraFOV");
     }
 }

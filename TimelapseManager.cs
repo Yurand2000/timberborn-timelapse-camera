@@ -1,15 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TimberApi.ConsoleSystem;
 using TimberApi.DependencyContainerSystem;
-using Timberborn.Core;
-using Timberborn.ToolSystem;
 using Timberborn.SingletonSystem;
-using Timberborn.WaterSystemRendering;
-using Timberborn.LevelVisibilitySystem;
-using UnityEngine;
-using UnityEngine.UIElements;
 using Timberborn.TimeSystem;
 using Timberborn.TickSystem;
 using Timberborn.Persistence;
@@ -17,7 +9,7 @@ using Timberborn.SettlementNameSystem;
 
 namespace Yurand.Timberborn.TimelapseCamera
 {
-    public class TimelapseManager : ILoadableSingleton, ITickableSingleton, ISaveableSingleton
+    public class TimelapseManager : IPostLoadableSingleton, ITickableSingleton, ISaveableSingleton
     {
         public bool Enabled { get; private set; }
         public TimelapseFrequency Frequency { get; private set; }
@@ -27,6 +19,8 @@ namespace Yurand.Timberborn.TimelapseCamera
         private SettlementNameService settlementNameService;
         private IDayNightCycle timeSystem;
         private IConsoleWriter console;
+
+        public static Action TakeManualScreenshotDelegate;
 
         public TimelapseManager(IConsoleWriter console, IDayNightCycle timeSystem, SettlementNameService settlementNameService)
         {
@@ -55,7 +49,7 @@ namespace Yurand.Timberborn.TimelapseCamera
             }
         }
 
-        public void Load()
+        public void PostLoad()
         {
             var singleton_loader = DependencyContainer.GetInstance<ISingletonLoader>();
             if (!singleton_loader.HasSingleton(singletonKey)) return;
@@ -84,6 +78,9 @@ namespace Yurand.Timberborn.TimelapseCamera
             }
 
             if (Enabled) ComputeNextScreenshotTime();
+            TakeManualScreenshotDelegate = () => {
+                ScreenshotService.TakeScreenshotDelegate(screenshotFolder(), manualScreenshotName() + ".png");
+            };
             
             if (PluginEntryPoint.debugLogging) {
                 console.LogInfo("Timelapse Manager Started Successfully");
@@ -96,7 +93,7 @@ namespace Yurand.Timberborn.TimelapseCamera
 
             var now = new IngameDateTime(timeSystem);
             if (now >= nextScreenshotTime) {
-                //trigger screenshot
+                ScreenshotService.TakeScreenshotDelegate(screenshotFolder(), screenshotName(now) + ".png");
                 if (PluginEntryPoint.debugLogging) {
                     console.LogInfo("Screenshot fired at " + now.ToString());
                 }
@@ -104,6 +101,20 @@ namespace Yurand.Timberborn.TimelapseCamera
                 LastScreenshotTime = nextScreenshotTime;
                 ComputeNextScreenshotTime();
             }
+        }
+
+        public string manualScreenshotName() {
+            return screenshotName(new IngameDateTime(timeSystem)) + " manual";
+        }
+
+        private string screenshotName(IngameDateTime now)
+        {
+            return String.Format("{0} - day-time {1}-{2}-00", settlementNameService.SettlementName, now.day, now.hour);
+        }
+
+        private string screenshotFolder()
+        {
+            return settlementNameService.SettlementName + "/";
         }
 
         public void SetEnabled(bool enabled) {

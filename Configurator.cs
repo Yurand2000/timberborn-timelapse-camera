@@ -16,6 +16,7 @@ namespace Yurand.Timberborn.TimelapseCamera
         public void Configure(IContainerDefinition containerDefinition)
         {
             containerDefinition.Bind<ScreenshotService>().AsSingleton();
+            containerDefinition.Bind<ScreenshotSunService>().AsSingleton();
             containerDefinition.Bind<TimelapseManager>().AsSingleton();
         }
     }

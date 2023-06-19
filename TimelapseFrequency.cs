@@ -1,19 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TimberApi.ConsoleSystem;
-using TimberApi.DependencyContainerSystem;
-using Timberborn.Core;
-using Timberborn.ToolSystem;
-using Timberborn.SingletonSystem;
-using Timberborn.WaterSystemRendering;
-using Timberborn.LevelVisibilitySystem;
-using UnityEngine;
-using UnityEngine.UIElements;
-using Timberborn.TimeSystem;
-using Timberborn.TickSystem;
-using Timberborn.Persistence;
-
 namespace Yurand.Timberborn.TimelapseCamera
 {
     public enum TimelapseFrequency

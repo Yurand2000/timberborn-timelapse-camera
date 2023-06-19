@@ -1,18 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Timberborn.EntityPanelSystem;
-using Timberborn.CoreUI;
-using UnityEngine;
-using UnityEngine.UIElements;
-using TimberApi.UiBuilderSystem;
-using Timberborn.BaseComponentSystem;
-using Timberborn.Localization;
-using Timberborn.SingletonSystem;
-using Timberborn.UILayoutSystem;
 using TimberApi.ConsoleSystem;
+using TimberApi.UiBuilderSystem;
+using Timberborn.CoreUI;
+using Timberborn.Localization;
+using UnityEngine.UIElements;
 using static UnityEngine.UIElements.LengthUnit;
 
 namespace Yurand.Timberborn.TimelapseCamera.UI
