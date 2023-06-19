@@ -52,32 +52,33 @@ namespace Yurand.Timberborn.TimelapseCamera
         public void PostLoad()
         {
             var singleton_loader = DependencyContainer.GetInstance<ISingletonLoader>();
-            if (!singleton_loader.HasSingleton(singletonKey)) return;
+            if (singleton_loader.HasSingleton(singletonKey)) {
+                var loader = singleton_loader.GetSingleton(singletonKey);
+                if (loader.Has(TimelapseFrequencyKey)) {
+                    Frequency = TimelapseFrequencyHelpers.FromInt(loader.Get(TimelapseFrequencyKey));
+                    ComputeNextScreenshotTime();
 
-            var loader = singleton_loader.GetSingleton(singletonKey);
-            if (loader.Has(TimelapseFrequencyKey)) {
-                Frequency = TimelapseFrequencyHelpers.FromInt(loader.Get(TimelapseFrequencyKey));
-                ComputeNextScreenshotTime();
+                    if (PluginEntryPoint.debugLogging)
+                        console.LogInfo("Loaded Frequency: " + Frequency.ToString());
+                }
+                if (loader.Has(TimelapseEnabledKey)) {
+                    Enabled = loader.Get(TimelapseEnabledKey);
 
-                if (PluginEntryPoint.debugLogging)
-                    console.LogInfo("Loaded Frequency: " + Frequency.ToString());
-            }
-            if (loader.Has(TimelapseEnabledKey)) {
-                Enabled = loader.Get(TimelapseEnabledKey);
+                    if (PluginEntryPoint.debugLogging)
+                        console.LogInfo("Loaded Enabled: " + Enabled.ToString());
+                }
+                if (loader.Has(LastScreenshotDayKey) && loader.Has(LastScreenshotHourKey)) {
+                    var date = loader.Get(LastScreenshotDayKey);
+                    var time = loader.Get(LastScreenshotHourKey);
+                    LastScreenshotTime = new IngameDateTime(date, time);
 
-                if (PluginEntryPoint.debugLogging)
-                    console.LogInfo("Loaded Enabled: " + Enabled.ToString());
-            }
-            if (loader.Has(LastScreenshotDayKey) && loader.Has(LastScreenshotHourKey)) {
-                var date = loader.Get(LastScreenshotDayKey);
-                var time = loader.Get(LastScreenshotHourKey);
-                LastScreenshotTime = new IngameDateTime(date, time);
-
-                if (PluginEntryPoint.debugLogging)
-                    console.LogInfo("Loaded Last Screenshot Time: " + LastScreenshotTime.ToString());
-            }
+                    if (PluginEntryPoint.debugLogging)
+                        console.LogInfo("Loaded Last Screenshot Time: " + LastScreenshotTime.ToString());
+                }
+            }            
 
             if (Enabled) ComputeNextScreenshotTime();
+
             TakeManualScreenshotDelegate = () => {
                 ScreenshotService.TakeScreenshotDelegate(screenshotFolder(), manualScreenshotName() + ".png");
             };

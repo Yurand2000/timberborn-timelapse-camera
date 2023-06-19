@@ -2,10 +2,12 @@
 using TimberApi.ConsoleSystem;
 using TimberApi.DependencyContainerSystem;
 using Timberborn.Core;
+using Timberborn.CoreUI;
 using Timberborn.ToolSystem;
 using Timberborn.SingletonSystem;
 using Timberborn.WaterSystemRendering;
 using Timberborn.LevelVisibilitySystem;
+using Timberborn.SelectionSystem;
 using Timberborn.Persistence;
 using UnityEngine;
 
@@ -23,6 +25,9 @@ namespace Yurand.Timberborn.TimelapseCamera
         private ToolManager toolManager;
         private ILevelVisibilityService levelVisibilityService;
         private ScreenshotSunService screenshotSunService;
+        private EntitySelectionService entitySelectionService;
+        private Highlighter highlighter;
+        private Colors colors;
 
         public ScreenshotService(
             IConsoleWriter console,
@@ -30,7 +35,10 @@ namespace Yurand.Timberborn.TimelapseCamera
             ToolGroupManager toolGroupManager,
             ToolManager toolManager,
             ILevelVisibilityService levelVisibilityService,
-            ScreenshotSunService screenshotSunService
+            ScreenshotSunService screenshotSunService,
+            EntitySelectionService entitySelectionService,
+            Highlighter highlighter,
+            Colors colors
         ) {
             this.console = console;
             this.waterOpacityService = waterOpacityService;
@@ -38,6 +46,9 @@ namespace Yurand.Timberborn.TimelapseCamera
             this.toolGroupManager = toolGroupManager;
             this.levelVisibilityService = levelVisibilityService;
             this.screenshotSunService = screenshotSunService;
+            this.entitySelectionService = entitySelectionService;
+            this.highlighter = highlighter;
+            this.colors = colors;
 
             if (PluginEntryPoint.debugLogging) {
                 console.LogInfo("Screenshot Service Initialized Successfully");
@@ -144,6 +155,7 @@ namespace Yurand.Timberborn.TimelapseCamera
             var maxVisibileLevel = levelVisibilityService.MaxVisibleLevel;
             var isMaxVisible = levelVisibilityService.LevelIsAtMax;
             var isFogVisible = RenderSettings.fog;
+            var selectedObject = entitySelectionService.SelectedObject;
 
             screenshotSunService.setSunForScreenshotRendering(screenshotCamera);
             if (activeTool is not null) toolManager.SwitchToDefaultTool();
@@ -151,6 +163,7 @@ namespace Yurand.Timberborn.TimelapseCamera
             if (waterHidden) waterOpacityService.ToggleOpacityOverride();
             if (isMaxVisible) levelVisibilityService.ResetMaxVisibleLevel();
             if (isFogVisible) RenderSettings.fog = false;
+            if (selectedObject is not null) entitySelectionService.Unselect();
 
             //render screenshot
             screenshotCamera.enabled = true;
@@ -160,6 +173,7 @@ namespace Yurand.Timberborn.TimelapseCamera
             screenshotCamera.enabled = false;
 
             //reset scene
+            if (selectedObject is not null) entitySelectionService.Select(selectedObject);
             if (isFogVisible) RenderSettings.fog = true;
             if (isMaxVisible) levelVisibilityService.SetMaxVisibleLevel(maxVisibileLevel);
             if (waterHidden) waterOpacityService.ToggleOpacityOverride();

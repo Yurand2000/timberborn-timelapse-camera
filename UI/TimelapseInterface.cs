@@ -34,8 +34,8 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
                 .SetJustifyContent(Justify.Center);
 
             panelBuilder.AddPreset(factory => factory.Labels()
-                .GameText(locKey: timelapseTopRightLabelLoc, builder:
-                    builder => builder.SetStyle(style => {
+                .GameText(locKey: timelapseTopRightLabelLoc,
+                    builder: builder => builder.SetStyle(style => {
                         style.alignSelf = Align.Center;
                         style.marginLeft = new Length(3, Pixel);
                         style.marginRight = new Length(3, Pixel);  
@@ -46,7 +46,8 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
             
             panelBuilder.AddPreset(factory => factory.Buttons()
                 .ButtonGame(locKey: timelapseSetCameraButtonLoc, name: "SetCameraButton",
-                    fontSize: new Length(8, Pixel),
+                    fontSize: new Length(9, Pixel),
+                    width: new Length(80, Pixel), height: new Length(22, Pixel),
                     builder: builder => builder.SetStyle(style => {
                         style.alignSelf = Align.Center;
                         style.marginLeft = new Length(3, Pixel);
@@ -58,7 +59,8 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
 
             panelBuilder.AddPreset(factory => factory.Buttons()
                 .ButtonGame(locKey: timelapseSettingsButtonLoc, name: "SettingsButton",
-                    fontSize: new Length(8, Pixel),
+                    fontSize: new Length(9, Pixel),
+                    width: new Length(80, Pixel), height: new Length(22, Pixel),
                     builder: builder => builder.SetStyle(style => {
                         style.alignSelf = Align.Center;
                         style.marginLeft = new Length(3, Pixel);
@@ -70,7 +72,8 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
 
             panelBuilder.AddPreset(factory => factory.Buttons()
                 .ButtonGame(locKey: timelapseManualScreenshotButtonLoc, name: "ScreenshotButton",
-                    fontSize: new Length(8, Pixel),
+                    fontSize: new Length(9, Pixel),
+                    width: new Length(80, Pixel), height: new Length(22, Pixel),
                     builder: builder => builder.SetStyle(style => {
                         style.alignSelf = Align.Center;
                         style.marginLeft = new Length(3, Pixel);
