@@ -1,0 +1,19 @@
+ID,Text,Comment
+yurand.timelapsecamera.ingame_panel,Timelapse,
+yurand.timelapsecamera.set_camera,Set Camera,
+yurand.timelapsecamera.manual_screenshot,Screenshot,
+yurand.timelapsecamera.open_settings,Settings,
+
+yurand.timelapsecamera.panel_header,Timelapse Camera Settings,
+yurand.timelapsecamera.enable,Enable Timelapse Camera,
+
+yurand.timelapsecamera.frequency,Screenshot Frequency,
+yurand.timelapsecamera.frequency.1h,1 Hour,
+yurand.timelapsecamera.frequency.2h,2 Hours,
+yurand.timelapsecamera.frequency.4h,4 Hours,
+yurand.timelapsecamera.frequency.6h,6 Hours,
+yurand.timelapsecamera.frequency.8h,8 Hours,
+yurand.timelapsecamera.frequency.12h,12 Hours,
+yurand.timelapsecamera.frequency.1day,1 Day,
+yurand.timelapsecamera.frequency.2day,2 Days,
+yurand.timelapsecamera.frequency.1cycle,1 Cycle,
