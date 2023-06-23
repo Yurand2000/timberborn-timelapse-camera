@@ -13,7 +13,7 @@ namespace Yurand.Timberborn.TimelapseCamera
         {
             new Harmony("Yurand.Timberborn.TimelapseCamera").PatchAll();
             directory = mod.DirectoryPath;
-            consoleWriter.LogInfo(directory);
+            consoleWriter.LogInfo("You can find your screenshots in: " + directory);
         }
     }
 }

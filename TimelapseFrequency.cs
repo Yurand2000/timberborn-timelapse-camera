@@ -9,7 +9,7 @@ namespace Yurand.Timberborn.TimelapseCamera
         EightHours,
         TwelveHours,
         Daily,
-        TwoDay,
+        TwoDays,
         EachCycle,
     }
 
@@ -24,7 +24,7 @@ namespace Yurand.Timberborn.TimelapseCamera
                 case TimelapseFrequency.EightHours: return "yurand.timelapsecamera.frequency.8h";
                 case TimelapseFrequency.TwelveHours: return "yurand.timelapsecamera.frequency.12h";
                 case TimelapseFrequency.Daily: return "yurand.timelapsecamera.frequency.1day";
-                case TimelapseFrequency.TwoDay: return "yurand.timelapsecamera.frequency.2day";
+                case TimelapseFrequency.TwoDays: return "yurand.timelapsecamera.frequency.2day";
                 case TimelapseFrequency.EachCycle: return "yurand.timelapsecamera.frequency.1cycle";
                 default: return "";
             }
@@ -39,12 +39,12 @@ namespace Yurand.Timberborn.TimelapseCamera
         }
 
         public static TimelapseFrequency FromInt(int frequency) {
-            if (frequency >= 1 && frequency <= 9)
+            if (frequency >= FrequencyMin && frequency <= FrequencyMax)
                 return (TimelapseFrequency)frequency;
             else
                 return Default();
         }
-        public static int FrequencyMin() { return 1; }
-        public static int FrequencyMax() { return 9; }
+        public const int FrequencyMin = (int)(TimelapseFrequency.OneHour);
+        public const int FrequencyMax = (int)(TimelapseFrequency.TwoDays);
     }
 }

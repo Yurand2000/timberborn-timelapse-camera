@@ -76,8 +76,8 @@ namespace Yurand.Timberborn.TimelapseCamera.UI
 
             panelContent.AddPreset(factory => factory.Sliders()
                 .SliderIntCircle(
-                    lowValue: TimelapseFrequencyHelpers.FrequencyMin(),
-                    highValue: TimelapseFrequencyHelpers.FrequencyMax(),
+                    lowValue: TimelapseFrequencyHelpers.FrequencyMin,
+                    highValue: TimelapseFrequencyHelpers.FrequencyMax,
                     value: TimelapseFrequencyHelpers.ToInt(timelapseManager.Frequency),
                     name: "FrequencySlider",
                     text: "",

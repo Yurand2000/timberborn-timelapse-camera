@@ -148,7 +148,7 @@ namespace Yurand.Timberborn.TimelapseCamera
                 case TimelapseFrequency.EightHours: nextScreenshotTime.addHours(8); break;
                 case TimelapseFrequency.TwelveHours: nextScreenshotTime.addHours(12); break;
                 case TimelapseFrequency.Daily: nextScreenshotTime.addDays(1); break;
-                case TimelapseFrequency.TwoDay: nextScreenshotTime.addDays(2); break;
+                case TimelapseFrequency.TwoDays: nextScreenshotTime.addDays(2); break;
                 case TimelapseFrequency.EachCycle: nextScreenshotTime.addDays(30); break;
                 default: nextScreenshotTime.day = Int32.MaxValue; break;
             }
