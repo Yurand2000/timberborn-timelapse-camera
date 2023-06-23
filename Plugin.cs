@@ -8,9 +8,7 @@ namespace Yurand.Timberborn.TimelapseCamera
     public class PluginEntryPoint : IModEntrypoint
     {
         public static string directory;
-
-        public const bool debugLogging = true;
-
+        public const bool debugLogging = false;
         public void Entry(IMod mod, IConsoleWriter consoleWriter)
         {
             new Harmony("Yurand.Timberborn.TimelapseCamera").PatchAll();
