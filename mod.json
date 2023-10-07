@@ -1,8 +1,8 @@
 {
   "Name": "TimelapseCamera",
-  "Version": "1.0.1",
+  "Version": "1.0.2",
   "UniqueId": "Yurand.Timberborn.TimelapseCamera",
-  "MinimumApiVersion": "0.5.5",
-  "MinimumGameVersion": "0.4.0.0",
+  "MinimumApiVersion": "0.6.0",
+  "MinimumGameVersion": "0.5.0.0",
   "EntryDll": "Yurand.Timberborn.TimelapseCamera.dll"
 }
